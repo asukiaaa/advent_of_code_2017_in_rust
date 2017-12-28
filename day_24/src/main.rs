@@ -1,3 +1,5 @@
+extern crate time;
+use time::PreciseTime;
 use std::io::BufReader;
 use std::io::prelude::*;
 use std::fs::File;
@@ -185,6 +187,7 @@ impl PortChain {
 }
 
 fn main() {
+    let start = PreciseTime::now();
     let file_name = "./data/ports.txt";
     //let file_name = "./data/example.txt";
     let file = BufReader::new(File::open(file_name).unwrap());
@@ -197,6 +200,10 @@ fn main() {
     let mut port_chain = PortChain::new(ports);
     while port_chain.search_next_chain() != None {}
     println!("{:?}", port_chain);
-    println!("best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.best_chain.clone()));
-    println!("longest_best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.longest_best_chain.clone()));
+    //println!("best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.best_chain.clone()));
+    //println!("longest_best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.longest_best_chain.clone()));
+    println!("best point {:?}", port_chain.best_point);
+    println!("logest best point {:?}", port_chain.longest_best_point);
+    let end = PreciseTime::now();
+    println!("{} second", start.to(end));
 }
