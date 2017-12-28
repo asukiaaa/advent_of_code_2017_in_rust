@@ -7,6 +7,8 @@ struct PortChain {
     ports: Vec<Vec<u32>>,
     best_chain: Vec<usize>,
     best_point: u32,
+    longest_best_chain: Vec<usize>,
+    longest_best_point: u32,
     current_chain: Vec<usize>,
     current_point: u32,
     current_port_number: u32,
@@ -55,7 +57,7 @@ fn get_last_port_number(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
             last_port_number = *number.unwrap();
         }
     }
-    println!("last port number {:?}", last_port_number);
+    // println!("last port number {:?}", last_port_number);
     last_port_number
 }
 
@@ -73,14 +75,9 @@ fn calc_chain_points(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
 fn get_next_child_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
     let mut next_chain = current_chain.clone();
     let mut next_last_port_number = last_port_number;
-    let mut last_index: usize = 0;
     loop {
         // println!("next chain {:?}", next_chain);
         // println!("next last port num {:?}", next_last_port_number);
-        if next_chain.len() > 0 {
-            last_index = *next_chain.last().unwrap();
-            last_index += 1;
-        }
         let next_port_index = find_port(ports.clone(), 0, next_last_port_number, next_chain.clone());
         if next_port_index == None {
             if next_chain.len() == current_chain.len() {
@@ -159,6 +156,8 @@ impl PortChain {
             ports: ports,
             best_chain: initial_chain.clone(),
             best_point: initial_point,
+            longest_best_chain: initial_chain.clone(),
+            longest_best_point: initial_point,
             current_chain: initial_chain.clone(),
             current_point: initial_point.clone(),
             current_port_number: initial_number,
@@ -171,10 +170,14 @@ impl PortChain {
             self.current_chain = next_chain.clone().unwrap();
             self.current_point = calc_chain_points(self.ports.clone(), self.current_chain.clone());
             self.current_port_number = get_last_port_number(self.ports.clone(), self.current_chain.clone());
-            println!("current chain {:?}", self.current_chain);
+            // println!("current chain {:?}", self.current_chain);
             if self.current_point > self.best_point {
                 self.best_point = self.current_point;
                 self.best_chain = self.current_chain.clone();
+            }
+            if self.current_chain.len() >= self.longest_best_chain.len() && self.current_point > self.longest_best_point {
+                self.longest_best_point = self.current_point;
+                self.longest_best_chain = self.current_chain.clone();
             }
         }
         return next_chain
@@ -194,6 +197,6 @@ fn main() {
     let mut port_chain = PortChain::new(ports);
     while port_chain.search_next_chain() != None {}
     println!("{:?}", port_chain);
-    println!("{:?}", create_port_chain(port_chain.ports.clone(), port_chain.best_chain.clone()));
+    println!("best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.best_chain.clone()));
+    println!("longest_best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.longest_best_chain.clone()));
 }
-
