@@ -16,7 +16,7 @@ struct PortChain {
     current_port_number: u32,
 }
 
-fn find_port(ports: Vec<Vec<u32>>, start_index: usize, target_port_num: u32, reserved_index: Vec<usize>) -> Option<usize> {
+fn find_port(ports: &Vec<Vec<u32>>, start_index: usize, target_port_num: u32, reserved_index: &Vec<usize>) -> Option<usize> {
     for (i, port) in ports.iter().enumerate() {
         // Want to start iter from start_index
         // println!("{:?} {:?}", i, reserved_index);
@@ -32,15 +32,15 @@ fn find_port(ports: Vec<Vec<u32>>, start_index: usize, target_port_num: u32, res
     None
 }
 
-fn get_last_port_number(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
+fn get_last_port_number(ports: &Vec<Vec<u32>>, chain: &Vec<usize>) -> u32 {
     if ports.len() == 0 {
         panic!("zero length chain was put to get_last_port_number");
     }
     let last_port = ports.last().unwrap();
     if ports.len() == 1 {
-        let number = *last_port.get(0).unwrap();
+        let number = last_port[0];
         if number == 0 {
-            return *last_port.get(1).unwrap();
+            return last_port[1];
         } else {
             return number;
         }
@@ -52,8 +52,8 @@ fn get_last_port_number(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
     // }
     // if before_last_port.iter().find(|&&number| number != before_last_port)
     let mut last_port_number = 0;
-    for port_index in &chain {
-        let port = ports.get(*port_index).unwrap();
+    for port_index in chain.iter() {
+        let port = &ports[*port_index];
         let number = port.iter().find(|&&number| number != last_port_number);
         if number != None {
             last_port_number = *number.unwrap();
@@ -63,24 +63,22 @@ fn get_last_port_number(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
     last_port_number
 }
 
-fn calc_chain_points(ports: Vec<Vec<u32>>, chain: Vec<usize>) -> u32 {
+fn calc_chain_points(ports: &Vec<Vec<u32>>, chain: &Vec<usize>) -> u32 {
     let mut chain_points: u32 = 0;
     for index in chain.iter() {
-        let port = ports.get(*index).unwrap();
-        let port_points: u32 = port.iter().sum();
-        chain_points += port_points;
-        //point = point + port.get(0).unwrap() + port.get(1).unwrap();
+        let port = &ports[*index];
+        chain_points = chain_points + &port[0] + &port[1];
     }
     chain_points
 }
 
-fn get_next_child_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
+fn get_next_child_chain(ports: &Vec<Vec<u32>>, current_chain: &Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
     let mut next_chain = current_chain.clone();
     let mut next_last_port_number = last_port_number;
     loop {
         // println!("next chain {:?}", next_chain);
         // println!("next last port num {:?}", next_last_port_number);
-        let next_port_index = find_port(ports.clone(), 0, next_last_port_number, next_chain.clone());
+        let next_port_index = find_port(&ports, 0, next_last_port_number, &next_chain);
         if next_port_index == None {
             if next_chain.len() == current_chain.len() {
                 return None;
@@ -89,51 +87,50 @@ fn get_next_child_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>, last_po
             }
         }
         let next_port_index = next_port_index.unwrap();
-        let next_port = ports.get(next_port_index).unwrap();
+        let next_port = &ports[next_port_index];
         next_chain.push(next_port_index);
-        let number = *next_port.get(0).unwrap();
+        let number = next_port[0];
         if number == next_last_port_number {
-            next_last_port_number = *next_port.get(1).unwrap();
+            next_last_port_number = next_port[1];
         } else {
             next_last_port_number = number;
         }
     }
 }
 
-fn get_next_parent_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
+fn get_next_parent_chain(ports: &Vec<Vec<u32>>, current_chain: &Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
     let mut next_chain = current_chain.clone();
     let last_port_index = next_chain.pop();
     if last_port_index == None {
         return None;
     }
     let last_port_index = last_port_index.unwrap();
-    let cloned_ports = ports.clone();
-    let last_port = cloned_ports.get(last_port_index).unwrap();
-    let mut next_last_port_number = *last_port.get(0).unwrap();
+    let last_port = &ports[last_port_index];
+    let mut next_last_port_number = last_port[0];
     if next_last_port_number == last_port_number {
-        next_last_port_number = *last_port.get(1).unwrap();
+        next_last_port_number = last_port[1];
     }
-    let next_port_index = find_port(ports.clone(), last_port_index + 1, next_last_port_number, next_chain.clone());
+    let next_port_index = find_port(&ports, last_port_index + 1, next_last_port_number, &next_chain);
     if next_port_index == None {
-        return get_next_parent_chain(ports, next_chain, next_last_port_number);
+        return get_next_parent_chain(&ports, &next_chain, next_last_port_number);
     } else {
         next_chain.push(next_port_index.unwrap());
         return Some(next_chain);
     }
 }
 
-fn get_next_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
-    let next_child_chain = get_next_child_chain(ports.clone(), current_chain.clone(), last_port_number);
+fn get_next_chain(ports: &Vec<Vec<u32>>, current_chain: &Vec<usize>, last_port_number: u32) -> Option<Vec<usize>> {
+    let next_child_chain = get_next_child_chain(&ports, &current_chain, last_port_number);
     if next_child_chain != None {
         return next_child_chain;
     }
-    return get_next_parent_chain(ports, current_chain.clone(), last_port_number);
+    return get_next_parent_chain(&ports, &current_chain, last_port_number);
 }
 
-fn create_port_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>) -> Vec<Vec<u32>> {
+fn create_port_chain(ports: &Vec<Vec<u32>>, current_chain: &Vec<usize>) -> Vec<Vec<u32>> {
     let mut port_chain: Vec<Vec<u32>> = Vec::new();
-    for i in &current_chain {
-        let port = ports.get(*i).unwrap();
+    for i in current_chain.iter() {
+        let port = &ports[*i];
         port_chain.push(port.clone());
     }
     port_chain
@@ -141,48 +138,48 @@ fn create_port_chain(ports: Vec<Vec<u32>>, current_chain: Vec<usize>) -> Vec<Vec
 
 impl PortChain {
     fn new(ports: Vec<Vec<u32>>) -> PortChain {
-        let initial_index = find_port(ports.clone(), 0, 0, vec![]);
+        let initial_index = find_port(&ports, 0, 0, &vec![]);
         if initial_index == None {
             panic!("No initial port");
         }
         let initial_index = initial_index.unwrap();
-        let cloned_port = ports.clone();
-        let initial_port = cloned_port.get(initial_index).unwrap();
-        let mut initial_number = *initial_port.get(0).unwrap();
+        let initial_port = &ports.clone()[initial_index];
+        let mut initial_number = initial_port[0];
         if initial_number == 0 {
-            initial_number = *initial_port.get(1).unwrap();
+            initial_number = initial_port[1];
         }
-        let initial_chain = get_next_chain(ports.clone(), vec![initial_index], initial_number).unwrap();
-        let initial_point = calc_chain_points(ports.clone(), initial_chain.clone());
+        let initial_chain = get_next_chain(&ports, &vec![initial_index], initial_number).unwrap();
+        let initial_point = calc_chain_points(&ports, &initial_chain);
         let port_chain = PortChain {
             ports: ports,
             best_chain: initial_chain.clone(),
             best_point: initial_point,
             longest_best_chain: initial_chain.clone(),
             longest_best_point: initial_point,
-            current_chain: initial_chain.clone(),
-            current_point: initial_point.clone(),
+            current_chain: initial_chain,
+            current_point: initial_point,
             current_port_number: initial_number,
         };
         port_chain
     }
-    fn search_next_chain(&mut self) -> Option<Vec<usize>> {
-        let next_chain =  get_next_chain(self.ports.clone(), self.current_chain.clone(), self.current_port_number);
-        if next_chain != None {
-            self.current_chain = next_chain.clone().unwrap();
-            self.current_point = calc_chain_points(self.ports.clone(), self.current_chain.clone());
-            self.current_port_number = get_last_port_number(self.ports.clone(), self.current_chain.clone());
-            // println!("current chain {:?}", self.current_chain);
-            if self.current_point > self.best_point {
-                self.best_point = self.current_point;
-                self.best_chain = self.current_chain.clone();
-            }
-            if self.current_chain.len() >= self.longest_best_chain.len() && self.current_point > self.longest_best_point {
-                self.longest_best_point = self.current_point;
-                self.longest_best_chain = self.current_chain.clone();
-            }
+    fn search_next_chain(&mut self) -> bool {
+        let next_chain =  get_next_chain(&self.ports, &self.current_chain, self.current_port_number);
+        if next_chain == None {
+            return false;
         }
-        return next_chain
+        self.current_chain = next_chain.unwrap();
+        self.current_point = calc_chain_points(&self.ports, &self.current_chain);
+        self.current_port_number = get_last_port_number(&self.ports, &self.current_chain);
+        // println!("current chain {:?}", self.current_chain);
+        if self.current_point > self.best_point {
+            self.best_chain = self.current_chain.clone();
+            self.best_point = self.current_point;
+        }
+        if self.current_chain.len() >= self.longest_best_chain.len() && self.current_point > self.longest_best_point {
+            self.longest_best_chain = self.current_chain.clone();
+            self.longest_best_point = self.current_point;
+        }
+        true
     }
 }
 
@@ -198,10 +195,10 @@ fn main() {
     let ports: Vec<Vec<u32>> = ports.iter().map(|p| p.iter().map(|s| s.parse::<u32>().unwrap()).collect()).collect();
 
     let mut port_chain = PortChain::new(ports);
-    while port_chain.search_next_chain() != None {}
+    while port_chain.search_next_chain() {}
     println!("{:?}", port_chain);
-    //println!("best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.best_chain.clone()));
-    //println!("longest_best_chain: {:?}", create_port_chain(port_chain.ports.clone(), port_chain.longest_best_chain.clone()));
+    println!("best_chain: {:?}", &create_port_chain(&port_chain.ports, &port_chain.best_chain));
+    println!("longest_best_chain: {:?}", &create_port_chain(&port_chain.ports, &port_chain.longest_best_chain));
     println!("best point {:?}", port_chain.best_point);
     println!("logest best point {:?}", port_chain.longest_best_point);
     let end = PreciseTime::now();
