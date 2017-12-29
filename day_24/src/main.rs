@@ -202,5 +202,5 @@ fn main() {
     println!("best point {:?}", port_chain.best_point);
     println!("logest best point {:?}", port_chain.longest_best_point);
     let end = PreciseTime::now();
-    println!("{} second", start.to(end));
+    println!("{} seconds", start.to(end));
 }
