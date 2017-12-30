@@ -1,32 +1,32 @@
 set b 65
 set c b
-jnz a 2
-jnz 1 5
-mul b 100
+jnz a 2 -> 5
+jnz 1 5 -> 9
+mul b 100 <- 3
 sub b -100000
 set c b
-sub c -17000
-set f 1
+sub c -17000 // Initial only
+set f 1 <- 32 <- 4 // if b != c [27-29] // if a != 0 [3-4]
 set d 2
-set e 2
-set g d
+set e 2 <- 24 // if b != d [22-24]
+set g d <- 20 // Base position (End initialization)
 mul g e
 sub g b
-jnz g 2
-set f 0
-sub e -1
+jnz g 2 -> 17
+set f 0 // if d * e == b [12-15]
+sub e -1 <- 15
 set g e
 sub g b
-jnz g -8
-sub d -1
+jnz g -8 -> 12 // Back to base if e != b
+sub d -1 // if e == b
 set g d
 sub g b
-jnz g -13
-jnz f 2
-sub h -1
-set g b
+jnz g -13 -> 11 // if b == d [22-24]
+jnz f 2 -> 27
+sub h -1 // if f == 0 [25] && b == d [22-24]
+set g b <- 25 // if b == d [22-24]
 sub g c
-jnz g 2
-jnz 1 3
-sub b -17
-jnz 1 -23
+jnz g 2 -> 31
+jnz 1 3 // Finish program if b == c [27-29]
+sub b -17 <- 29 // if b != c [27-29]
+jnz 1 -23 -> 9
