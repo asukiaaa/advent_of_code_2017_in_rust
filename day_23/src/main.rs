@@ -108,7 +108,7 @@ impl Registors {
         *command_index += 1;
     }
     fn short_init(&mut self) {
-        //self.b = 65; // line 1
+        self.b = 65; // line 1
         self.c = self.b; // line 2
         if self.a != 0 { // line 3
             self.b *= 100; // line 5
@@ -122,33 +122,50 @@ impl Registors {
     }
     fn short_execute(&mut self) -> bool { // return true if finished
         //self.g = self.d;
-        loop {
-            if self.d * self.e == self.b { // line 12-16
-                self.f = 0;
-            }
-            self.e += 1; // line 17
-            if self.e == self.b { // line 18-20
-                break;
-            }
-        }
-        self.d += 1; // line 21
-        if self.b != self.d { // line 22-24
-            self.e = 2;
-            println!("return a");
-            return false;
-        }
-        if self.f == 0 { // line 25-26
+
+        // loop {
+        //     if self.d * self.e == self.b { // line 12-16
+        //         self.f = 0;
+        //     }
+        //     self.e += 1; // line 17
+        //     if self.e == self.b { // line 18-20
+        //         break;
+        //     }
+        // }
+
+        if self.e == 2 && (self.b % 2 == 0 || self.b % 3 == 0 || self.b % 5 == 0 || self.b % 7 == 0 || self.b % 11 == 0 || self.b % 13 == 0 || self.b & 17 == 0) {
+            self.d = self.b;
             self.h += 1;
+        } else {
+            if self.b as f64 % self.d as f64 == 0.0 {
+                println!("{:?}", self.b as f64 % self.d as f64);
+                let target_e = self.b / self.d;
+                if target_e >= 2 && target_e < self.b {
+                    self.f = 0;
+                }
+            }
+            self.e = self.b;
+
+            self.d += 1; // line 21
+            if self.b != self.d { // line 22-24
+                self.e = 2;
+                //println!("return a");
+                return false;
+            }
+            if self.f == 0 { // line 25-26
+                self.h += 1;
+            }
         }
+
         if self.b == self.c { // line 27-30
-            println!("finished");
+            // println!("finished");
             return true;
         }
         self.b += 17; // line 31
         self.f = 1; // line32, 9
         self.d = 2; // line 10
         self.e = 2; // line 11
-        println!("return b");
+        //println!("return b");
         return false;
     }
 }
@@ -182,8 +199,8 @@ fn main() {
     while !registors.short_execute() {
         println!("{:?}", registors);
     }
-    //println!("{:?}", registors);
 
     let end = PreciseTime::now();
+    println!("finished {:?}", registors);
     println!("{} seconds", start.to(end));
 }
