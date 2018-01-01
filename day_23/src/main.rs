@@ -1,9 +1,9 @@
+extern crate primal;
 extern crate time;
 use std::io::BufReader;
 use std::io::prelude::*;
 use std::fs::File;
 use time::PreciseTime;
-
 
 #[derive(Debug)]
 struct Registors {
@@ -115,12 +115,13 @@ impl Registors {
             self.b += 100000; // line 6
             self.c = self.b; // line 7
             self.c += 17000; // line 8
+            // self.mul_count += 1;
         }
         self.f = 1; // line 9
         self.d = 2; // line 10
         self.e = 2; // line 11
     }
-    fn short_execute(&mut self) -> bool { // return true if finished
+    fn short_execute(&mut self, primes: &Vec<i64>) -> bool { // return true if finished
         //self.g = self.d;
 
         // loop {
@@ -132,40 +133,46 @@ impl Registors {
         //         break;
         //     }
         // }
+        // self.d += 1; // line 21
+        // if self.b != self.d { // line 22-24
+        //     self.e = 2;
+        //     //println!("return a");
+        //     return false;
+        // }
+        // if self.f == 0 { // line 25-26
+        //     self.h += 1;
+        // }
 
-        if self.e == 2 && (self.b % 2 == 0 || self.b % 3 == 0 || self.b % 5 == 0 || self.b % 7 == 0 || self.b % 11 == 0 || self.b % 13 == 0 || self.b & 17 == 0) {
-            self.d = self.b;
+        if self.e == 2 && primes.iter().find(|&p| self.b % p == 0 && p * p < self.b) != None
+        {
             self.h += 1;
-        } else {
-            if self.b as f64 % self.d as f64 == 0.0 {
-                println!("{:?}", self.b as f64 % self.d as f64);
-                let target_e = self.b / self.d;
-                if target_e >= 2 && target_e < self.b {
-                    self.f = 0;
-                }
-            }
-            self.e = self.b;
-
-            self.d += 1; // line 21
-            if self.b != self.d { // line 22-24
-                self.e = 2;
-                //println!("return a");
-                return false;
-            }
-            if self.f == 0 { // line 25-26
-                self.h += 1;
-            }
+        // } else {
+        //     if self.b as f64 % self.d as f64 == 0.0 {
+        //         println!("{:?}", self.b as f64 % self.d as f64);
+        //         let target_e = self.b / self.d;
+        //         if target_e >= 2 && target_e < self.b {
+        //             self.f = 0;
+        //         }
+        //     }
+        //     self.e = self.b;
+        //     self.d += 1; // line 21
+        //     if self.b != self.d { // line 22-24
+        //         self.e = 2;
+        //         return false;
+        //     }
+        //     if self.f == 0 { // line 25-26
+        //         self.h += 1;
+        //     }
         }
+        // self.mul_count += (self.b + 2) * (self.b - 2) / 2; // Not correct
 
         if self.b == self.c { // line 27-30
-            // println!("finished");
             return true;
         }
         self.b += 17; // line 31
         self.f = 1; // line32, 9
         self.d = 2; // line 10
         self.e = 2; // line 11
-        //println!("return b");
         return false;
     }
 }
@@ -189,15 +196,17 @@ fn main() {
     let mut current_index: usize = 0;
     let commands_len = commands.len();
 
-    //while current_index < commands_len {
-    //    println!("{}", current_index);
-    //    println!("{:?}", registors);
-    //    registors.execute(&commands, &mut current_index);
-    //}
+    // while current_index < commands_len {
+    //     println!("{}", current_index);
+    //     println!("{:?}", registors);
+    //     registors.execute(&commands, &mut current_index);
+    // }
 
     registors.short_init();
-    while !registors.short_execute() {
-        println!("{:?}", registors);
+    let primes = primal::Primes::all().take_while(|&p| p < registors.c as usize).map(|p| p as i64).collect();
+    // println!("primes: {:?}", primes);
+    while !registors.short_execute(&primes) {
+        // println!("{:?}", registors);
     }
 
     let end = PreciseTime::now();
