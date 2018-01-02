@@ -40,7 +40,7 @@ impl TapeState {
         // self.change_state_0_1(1, 'l', 'a',
         //                       1, 'r', 'a')
         self.change_state_0_1(1, 'l', 'a',
-                               1, 'r', 'c')
+                              1, 'r', 'c')
     }
     fn action_c(&mut self) {
         self.change_state_0_1(1, 'r', 'a',
