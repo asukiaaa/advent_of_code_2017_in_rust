@@ -190,9 +190,14 @@ fn main() {
     let file = BufReader::new(File::open(file_name).unwrap());
 
     //let ports: Vec<Vec<&str>> = file.lines().map(|l| l.unwrap().split("/").collect::<Vec<&str>>()).collect();
-    let ports: Vec<String> = file.lines().map(|l| l.unwrap()).collect();
-    let ports: Vec<Vec<&str>> = ports.iter().map(|p| p.split("/").collect()).collect();
-    let ports: Vec<Vec<u32>> = ports.iter().map(|p| p.iter().map(|s| s.parse::<u32>().unwrap()).collect()).collect();
+    // let ports: Vec<String> = file.lines().map(|l| l.unwrap()).collect();
+    // let ports: Vec<Vec<&str>> = ports.iter().map(|p| p.split("/").collect()).collect();
+    // let ports: Vec<Vec<u32>> = ports.iter().map(|p| p.iter().map(|s| s.parse::<u32>().unwrap()).collect()).collect();
+    let ports: Vec<Vec<u32>> = file.lines().map(
+        |l| l.unwrap().split("/").map(
+            |s| s.parse::<u32>().unwrap()
+        ).collect()
+    ).collect();
 
     let mut port_chain = PortChain::new(ports);
     while port_chain.search_next_chain() {}
