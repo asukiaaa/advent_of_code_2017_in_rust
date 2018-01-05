@@ -1,0 +1,8 @@
+[package]
+name = "day_21_with_nalgebra"
+version = "0.1.0"
+authors = ["asuki <asukiaaa@gmail.com>"]
+
+[dependencies]
+ndarray = "0.11"
+time = "0.1"
