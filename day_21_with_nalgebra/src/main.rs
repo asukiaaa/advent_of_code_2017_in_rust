@@ -6,7 +6,7 @@ use time::PreciseTime;
 
 extern crate approx;
 extern crate nalgebra as na;
-use na::{Matrix2, Matrix3, Matrix4,};
+use na::{Matrix2, Matrix3, Matrix4};
 
 const ON_VALUE: i32 = 1;
 const OFF_VALUE: i32 = 0;
