@@ -5,8 +5,7 @@ use std::fs::File;
 use time::PreciseTime;
 
 extern crate ndarray;
-use ndarray::prelude::*;
-use ndarray::{arr2, Array2, Data, Array};
+use ndarray::{arr2, Array2, Array};
 
 const ON_VALUE: i32 = 1;
 const OFF_VALUE: i32 = 0;
@@ -66,7 +65,7 @@ impl Canvas {
         false
     }
     fn expand(&mut self, size: usize) -> bool {
-        let mut result_square: Vec<Vec<Array2<i32>>> = vec![];
+        let mut next_square: Square = vec![];
         let step = self.square[0].len() / size;
         // let reverse_matrix = arr2(&[[0,0,1],
         //                             [0,1,0],
@@ -74,7 +73,7 @@ impl Canvas {
         for y in 0..step {
             let mut result_line: Vec<Array2<i32>> = vec![];
             for x in 0..step {
-                let mut compare_matrix: Array2<i32>;
+                let compare_matrix: Array2<i32>;
                 if size == 2 {
                     compare_matrix = arr2(&[[self.square[size*y + 0][size*x + 0], self.square[size*y + 0][size*x + 1]],
                                             [self.square[size*y + 1][size*x + 0], self.square[size*y + 1][size*x + 1]]]);
@@ -85,7 +84,7 @@ impl Canvas {
                 }
                 let mut result_matrix = Array2::<i32>::zeros((1,1));
                 // println!("compare_matrix: {:?}", compare_matrix);
-                let mut patterns: &Vec<Vec<Array2<i32>>>;
+                let patterns: &Vec<Vec<Array2<i32>>>;
                 if size == 2 {
                     patterns = &self.patterns2;
                 } else {
@@ -113,13 +112,9 @@ impl Canvas {
                 }
                 result_line.push(result_matrix);
             }
-            result_square.push(result_line);
-        }
-        let mut next_square: Square = vec![];
-        for matrix_line in result_square.iter() {
             for i in 0..size+1 {
                 let mut square_line: Vec<i32> = vec![];
-                for matrix in matrix_line.iter() {
+                for matrix in result_line.iter() {
                     // println!("{}", matrix.row(i));
                     square_line.extend(matrix.row(i).iter());
                 }
@@ -175,7 +170,7 @@ fn match_type(matrix1: &Array2<i32>, matrix2: &Array2<i32>) -> Option<String>
     let mut matrix1 = matrix1.clone();
     // println!("shape:\n{:?}", matrix2.shape());
     let size = matrix2.shape()[0];
-    let mut revert_vec: Vec<Vec<i32>> = vec![];
+    // let mut revert_vec: Vec<Vec<i32>> = vec![];
     // for i in 1..size+1 {
     //     let mut line = vec![OFF_VALUE; size];
     //     line[size - i] = ON_VALUE;
