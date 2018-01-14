@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["asuki <asukiaaa@gmail.com>"]
 
 [dependencies]
+alga = "0.5.2"
 approx = "0.1.1"
 nalgebra = "0.13"
+num-traits = "0.1.41"
 time = "0.1"
