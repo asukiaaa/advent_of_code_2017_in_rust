@@ -10,3 +10,4 @@ commit | time
 # References
 - [ndarray: examples](https://github.com/bluss/rust-ndarray/tree/master/examples)
 - [crate ndarray](https://docs.rs/ndarray/0.11.0/ndarray/)
+- [rustでndarrayを利用して行列を扱う方法](http://asukiaaa.blogspot.com/2018/01/rustndarray.html)
